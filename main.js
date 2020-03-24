@@ -3,7 +3,14 @@ console.log("Hello from main.js");
 var config = {
     type: Phaser.AUTO,
     width: 800,
-    height: 400,
+    height: 600,
+    physics: {
+        default: 'arcade',
+        arcade:{
+            gravity: {y: 300},
+            debug: false
+        }
+    },
     scene:{
         preload: preload,
         create: create,
@@ -29,6 +36,16 @@ function preload ()
 function create ()
 {
     this.add.image(400, 300, 'sky');
+
+    var platforms = this.physics.add.staticGroup();
+
+    platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+
+    platforms.create(600, 400, 'ground');
+    platforms.create(50, 250, 'ground');
+    platforms.create(750, 220, 'ground');
+
+    this.add.image(400, 300, 'star');
 }
 
 function update ()
