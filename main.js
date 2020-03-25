@@ -1,5 +1,6 @@
 console.log("Hello from main.js");
 
+
 var config = {
     type: Phaser.AUTO,
     width: 800,
@@ -16,8 +17,12 @@ var config = {
         create: create,
         update: update
     }
-
+    
 };
+
+var platforms;
+var player;
+var cursors;
 
 var game = new Phaser.Game(config);
 
@@ -37,7 +42,7 @@ function create ()
 {
     this.add.image(400, 300, 'sky');
 
-    var platforms = this.physics.add.staticGroup();
+    platforms = this.physics.add.staticGroup();
 
     platforms.create(400, 568, 'ground').setScale(2).refreshBody();
 
@@ -47,10 +52,11 @@ function create ()
 
     this.add.image(400, 300, 'star');
 
-    var player = this.physics.add.sprite(100, 450, 'dude');
+    player = this.physics.add.sprite(100, 450, 'dude');
     
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
+    player.body.setGravityY(300);
 
     this.anims.create({
         key: 'left',
@@ -73,10 +79,30 @@ function create ()
     })
 
     this.physics.add.collider(player, platforms);
-
+    
+    cursors = this.input.keyboard.createCursorKeys();
 }
+
 
 function update ()
 {
+    if (cursors.left.isDown){
+        player.setVelocityX(-160);
+        player.anims.play('left', true);
+    }
+    else if(cursors.right.isDown){
+        player.setVelocityX(160);
+        player.anims.play('right', true);
+    }
+    else
+    {
+        player.setVelocityX(0);
+        player.anims.play('turn');
+    }
+
+    if(cursors.up.isDown && player.body.touching.down)
+    {
+        player.setVelocityY(-470);
+    }
 
 }
