@@ -1,5 +1,10 @@
 console.log("Hello from main.js");
 
+class GameScene extends Phaser.Scene {
+    constructor() {
+        super('main');
+    }
+}
 
 var config = {
     type: Phaser.AUTO,
@@ -24,6 +29,11 @@ var platforms;
 var player;
 var cursors;
 var stars;
+var score = 0;
+var scoreText;
+var bombs;
+
+//var gameOver;
 
 var game = new Phaser.Game(config);
 
@@ -97,6 +107,13 @@ function create ()
     this.physics.add.collider(stars, platforms);
 
     this.physics.add.overlap(player, stars, colliderStars, null, this);
+
+    scoreText = this.add.text(16, 16, 'score: 0', {fontSize: '32px', fill: '#000'});
+
+    bombs = this.physics.add.group();
+    this.physics.add.collider(bombs, platforms);
+    this.physics.add.collider(player, bombs, hitBomb, null, this);
+
 }
 
 
@@ -121,9 +138,58 @@ function update ()
         player.setVelocityY(-470);
     }
 
+    //if(gameOver){
+    //    restart();
+    //}
+
 }
 
 function colliderStars(player, star)
 {
     star.disableBody(true, true);
+
+    score += 10;
+    scoreText.setText(`Score: ${score}`);
+
+    if(stars.countActive(true) === 0){
+        stars.children.iterate(function(child){
+            child.enableBody(true, child.x, 0, true, true);
+        });
+
+        var x = (player.x < 400) ? Phaser.Math.FloatBetween(400, 800):Phaser.Math.FloatBetween(0, 400);
+        
+        var bomb = bombs.create(x, 16, 'bomb');
+        bomb.setBounce(1);
+        bomb.setCollideWorldBounds(true);
+        bomb.setVelocity(Phaser.Math.FloatBetween(-200, 200), 20);
+        //this.scene.start('main');
+    }
 }
+
+function hitBomb(player, bomb){
+
+    this.physics.pause();
+
+    player.setTint(0xff0000);
+
+    player.anims.play('turn');
+
+    gameOver = true;
+}
+
+/*
+function restart(){
+    gameOver = false;
+    console.log("restart");
+    score = 0;
+    //player.x = 400;
+    //player.y = 300;
+    //this.pausePhysics = false;
+    //this.physics.resume();
+    //this.physics.paused = false;
+    //game.physics.arcade.isPaused = false;
+    //this.registry.destroy(); // destroy registry
+    //this.events.off();// disable all active events
+    this.scene.load('preload')
+    
+}*/
